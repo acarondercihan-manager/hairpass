@@ -1,0 +1,68 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Yardımcı Yetki Fonksiyonları
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isCustomer(customerId) {
+      return isAuthenticated() && request.auth.uid == customerId;
+    }
+
+    // 1. Salon Bilgileri & Çalışma Saatleri (Herkes okuyabilir, sadece Yönetici günceller)
+    match /salons/{salonId} {
+      allow read: if true;
+      allow write: if isAuthenticated() && request.auth.token.role == 'admin';
+      
+      // Hizmet Kataloğu
+      match /services/{serviceId} {
+        allow read: if true;
+        allow write: if isAuthenticated() && request.auth.token.role == 'admin';
+      }
+
+      // Çalışan Kuaförler
+      match /staff/{staffId} {
+        allow read: if true;
+        allow write: if isAuthenticated() && request.auth.token.role == 'admin';
+      }
+    }
+
+    // 2. Randevular & 3 Saat Kuralı Güvenlik Doğrulaması
+    match /appointments/{appointmentId} {
+      // Okuma: Müşteri kendi randevusunu, kuaför kendi ajandasını, admin hepsini görebilir
+      allow read: if isAuthenticated() && (
+        request.auth.uid == resource.data.customerId ||
+        request.auth.uid == resource.data.staffId ||
+        request.auth.token.role == 'admin'
+      );
+
+      // Yeni Randevu Alma
+      allow create: if isAuthenticated();
+
+      // İptal & Güncelleme:
+      // - Admin veya yetkili kuaför her zaman iptal edebilir
+      // - MÜŞTERİ SADECE RANDEVU BAŞLANGICINA 3 SAATTEN FAZLA KALMIŞSA İPTAL EDEBİLİR!
+      allow update: if isAuthenticated() && (
+        request.auth.token.role == 'admin' ||
+        request.auth.uid == resource.data.staffId ||
+        (
+          request.auth.uid == resource.data.customerId &&
+          request.resource.data.status == 'IPTAL' &&
+          request.time < resource.data.startDateTime - duration.value(3, 'h')
+        )
+      );
+
+      allow delete: if isAuthenticated() && request.auth.token.role == 'admin';
+    }
+
+    // 3. Canlı Sohbet Mesajları (Sadece ilgili müşteri ve kuaför mesajlaşabilir)
+    match /chats/{chatId}/messages/{messageId} {
+      allow read, write: if isAuthenticated() && (
+        request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants ||
+        request.auth.token.role == 'admin'
+      );
+    }
+  }
+}

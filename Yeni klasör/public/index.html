@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HairPass - Kuaför Randevu & Yönetim Platformu</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#d97706">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+</head>
+<body>
+
+  <!-- Üst Menü & Rol Değiştirici -->
+  <header class="header-bar">
+    <div class="brand">
+      <div class="brand-icon">✂️</div>
+      <div>
+        <h1>HairPass</h1>
+        <span>Kuaför Randevu & Yönetim Sistemi</span>
+      </div>
+    </div>
+
+    <!-- Aktif Rol Seçici -->
+    <div class="role-switcher">
+      <button class="role-btn active" data-role="dual">
+        📱 Çift Telefon (Müşteri + Kuaför)
+      </button>
+      <button class="role-btn" data-role="admin">
+        👑 Salon Yönetici Paneli
+      </button>
+      <button class="role-btn" data-role="staff">
+        ✂️ Kuaför Çalışanı
+      </button>
+      <button class="role-btn" data-role="customer">
+        👤 Müşteri Uygulaması
+      </button>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn-reset" onclick="resetToDefault()">🔄 Fabrika Ayarlarına Sıfırla</button>
+    </div>
+  </header>
+
+  <!-- Ana İçerik Alanı -->
+  <main class="main-wrapper">
+
+    <!-- ========================================== -->
+    <!-- GÖRÜNÜM 1: ÇİFT TELEFON CANLI SİMÜLATÖRÜ     -->
+    <!-- ========================================== -->
+    <section id="view-dual" class="view-section active">
+      <div class="dual-container">
+
+        <!-- Sol Telefon: Müşteri Uygulaması -->
+        <div class="dual-card" id="card-customer">
+          <div class="dual-title">
+            <span>👤 MÜŞTERİ MOBİL UYGULAMASI</span>
+            <span style="font-size: 11px; color: #9ca3af;">(Randevu Al & İptal Et & Yazış)</span>
+          </div>
+          
+          <div class="phone-frame">
+            <div class="phone-notch">
+              <div class="notch-pill">
+                <div class="notch-speaker"></div>
+                <div class="notch-camera"></div>
+              </div>
+            </div>
+
+            <div class="phone-screen" id="cust-phone-screen">
+              <!-- Müşteri Header -->
+              <div class="app-header">
+                <div class="salon-mini">
+                  <div style="font-size: 22px; background: #fef3c7; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">✂️</div>
+                  <div>
+                    <div class="salon-name" id="cust-salon-name">Kuaför Salonu</div>
+                    <div class="salon-sub" id="cust-salon-address">İstanbul</div>
+                  </div>
+                </div>
+                <div style="font-size: 11px; background: #e0f2fe; color: #0284c7; padding: 4px 8px; border-radius: 12px; font-weight: 700;">Müşteri</div>
+              </div>
+
+              <!-- Müşteri Sekme 1: Randevu Alma (Booking) -->
+              <div id="cust-booking-container" style="padding: 12px;">
+                <!-- 1. Kuaför Seçimi -->
+                <div class="card">
+                  <div class="card-title">1. Kuaförünüzü Seçin</div>
+                  <div class="staff-grid" id="cust-staff-selection"></div>
+                </div>
+
+                <!-- 2. Hizmet Seçimi -->
+                <div class="card">
+                  <div class="card-title">2. Hizmet(ler) Seçin</div>
+                  <div id="cust-service-selection"></div>
+                  
+                  <div style="margin-top: 10px; padding: 8px; background: #f1f5f9; border-radius: 6px; display: flex; justify-content: space-between; font-size: 12px;">
+                    <span>Toplam Süre: <b id="cust-total-duration">0 dk</b></span>
+                    <span>Toplam Tutar: <b id="cust-total-price" style="color: var(--primary);">0 ₺</b></span>
+                  </div>
+                </div>
+
+                <!-- 3. Tarih ve Dinamik Slot Seçimi -->
+                <div class="card">
+                  <div class="card-title">
+                    <span>3. Tarih & Saat Dilimi</span>
+                    <input type="date" id="cust-date-picker" onchange="onCustomerDateChange(this.value)" style="padding: 4px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                  </div>
+
+                  <p style="font-size: 11px; color: #64748b; margin-bottom: 8px;">
+                    ⚡ Seçilen süreye göre uygun olan boş saatler anlık hesaplanmaktadır:
+                  </p>
+                  <div class="slots-grid" id="cust-slots-container"></div>
+                </div>
+
+                <!-- 4. Müşteri İletişim & Onay -->
+                <div class="card">
+                  <div class="card-title">4. Bilgileriniz</div>
+                  <div class="form-group" style="margin-bottom: 8px;">
+                    <input type="text" id="cust-input-name" placeholder="Adınız Soyadınız" value="Caner Yılmaz">
+                  </div>
+                  <div class="form-group" style="margin-bottom: 12px;">
+                    <input type="text" id="cust-input-phone" placeholder="Cep Telefonunuz" value="0542 987 65 43">
+                  </div>
+                  <button class="btn-primary" onclick="confirmCustomerAppointment()">✓ Randevuyu Onayla</button>
+                </div>
+              </div>
+
+              <!-- Müşteri Sekme 2: Randevularım & 3 Saat Kuralı -->
+              <div id="cust-my-appts-container" style="display: none; padding: 12px;">
+                <!-- Zaman Simülatörü Barı (Test amaçlı) -->
+                <div class="time-travel-bar">
+                  <span>⏱️ Zaman Simülatörü (3 Saat Kuralını Test Edin):</span>
+                  <div style="display: flex; gap: 4px;">
+                    <button class="time-travel-btn" onclick="setTimeTravelOffset(0)">Şimdi</button>
+                    <button class="time-travel-btn" onclick="setTimeTravelOffset(-4)">4 Saat Önce</button>
+                    <button class="time-travel-btn" onclick="setTimeTravelOffset(2)">2 Saat Sonra</button>
+                  </div>
+                </div>
+
+                <div id="cust-my-appts-list"></div>
+              </div>
+
+              <!-- Müşteri Sekme 3: Kuaförle Sohbet -->
+              <div id="cust-chat-container" class="chat-container" style="display: none;">
+                <div style="background: #f8fafc; padding: 8px 12px; border-bottom: 1px solid #e2e8f0; font-size: 12px; font-weight: 700; color: #334155;" id="cust-chat-staff-title">
+                  Kuaför ile Canlı Sohbet
+                </div>
+                <div class="chat-messages" id="cust-chat-messages"></div>
+                <div class="quick-chips">
+                  <button class="chip-btn" onclick="sendQuickCustomerMessage('10 dakika gecikebilirim.')">⏱️ 10 dk gecikeceğim</button>
+                  <button class="chip-btn" onclick="sendQuickCustomerMessage('Model fotoğrafı atabilir miyim?')">📸 Model fotosu</button>
+                  <button class="chip-btn" onclick="sendQuickCustomerMessage('Geldim, kapıdayım.')">🚪 Kapıdayım</button>
+                </div>
+                <div class="chat-input-bar">
+                  <input type="text" id="cust-chat-input" placeholder="Kuaförünüze mesaj yazın..." onkeydown="if(event.key==='Enter') sendCustomerMessage()">
+                  <button onclick="sendCustomerMessage()">➤</button>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Müşteri Alt Menü -->
+            <div class="phone-bottom-nav">
+              <button class="nav-item active" onclick="setCustomerTab('booking', this)">
+                <span style="font-size: 18px;">📅</span>
+                <span>Randevu Al</span>
+              </button>
+              <button class="nav-item" onclick="setCustomerTab('my-appointments', this)">
+                <span style="font-size: 18px;">📋</span>
+                <span>Randevularım</span>
+              </button>
+              <button class="nav-item" onclick="setCustomerTab('chat', this)">
+                <span style="font-size: 18px;">💬</span>
+                <span>Mesajlar</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- Sağ Telefon: Kuaför Çalışanı Uygulaması -->
+        <div class="dual-card" id="card-staff">
+          <div class="dual-title">
+            <span>✂️ KUAFÖR ÇALIŞANI MOBİL EKRANI</span>
+            <!-- Çalışan Değiştirici -->
+            <select id="staff-role-switcher-select" onchange="onStaffSelectChange(this.value)" style="background: #374151; color: #fff; border: 1px solid #4b5563; font-size: 11px; padding: 2px 6px; border-radius: 6px;">
+            </select>
+          </div>
+
+          <div class="phone-frame">
+            <div class="phone-notch">
+              <div class="notch-pill">
+                <div class="notch-speaker"></div>
+                <div class="notch-camera"></div>
+              </div>
+            </div>
+
+            <div class="phone-screen" id="staff-phone-screen">
+              <!-- Çalışan Header -->
+              <div class="app-header">
+                <div class="salon-mini">
+                  <img id="staff-active-avatar" src="" class="salon-logo">
+                  <div>
+                    <div class="salon-name" id="staff-active-name">Ahmet Usta</div>
+                    <div class="salon-sub" id="staff-active-title">Baş Kuaför</div>
+                  </div>
+                </div>
+                <div style="font-size: 11px; background: #fef3c7; color: #b45309; padding: 4px 8px; border-radius: 12px; font-weight: 700;">Personel</div>
+              </div>
+
+              <!-- Çalışan Sekme 1: Ajanda -->
+              <div id="staff-agenda-container" style="padding: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                  <h3 style="font-size: 13px; font-weight: 700; color: #1e293b;">📋 Bugünkü Randevularım</h3>
+                  <span style="font-size: 11px; color: #64748b;" id="staff-salon-name">Salon</span>
+                </div>
+                <div id="staff-agenda-list"></div>
+              </div>
+
+              <!-- Çalışan Sekme 2: Chat -->
+              <div id="staff-chat-container" class="chat-container" style="display: none;">
+                <div style="background: #f8fafc; padding: 8px 12px; border-bottom: 1px solid #e2e8f0; font-size: 12px; font-weight: 700; color: #334155;" id="staff-chat-customer-title">
+                  Müşteri ile Sohbet
+                </div>
+                <div class="chat-messages" id="staff-chat-messages"></div>
+                <div class="quick-chips">
+                  <button class="chip-btn" onclick="sendQuickStaffMessage('Tamamdır Caner Bey, bekliyorum.')">👍 Bekliyorum</button>
+                  <button class="chip-btn" onclick="sendQuickStaffMessage('5 dakika önce alabilirim sizi.')">⏰ Erken alabilirim</button>
+                  <button class="chip-btn" onclick="sendQuickStaffMessage('Sıradaki müşterim sizsiniz.')">✂️ Sıradaki sizsiniz</button>
+                </div>
+                <div class="chat-input-bar">
+                  <input type="text" id="staff-chat-input" placeholder="Müşterinize cevap yazın..." onkeydown="if(event.key==='Enter') sendStaffMessage()">
+                  <button onclick="sendStaffMessage()">➤</button>
+                </div>
+              </div>
+
+              <!-- Çalışan Sekme 3: Yetkilerim -->
+              <div id="staff-perms-container" style="display: none; padding: 12px;">
+                <div id="staff-perms-info"></div>
+              </div>
+
+            </div>
+
+            <!-- Çalışan Alt Menü -->
+            <div class="phone-bottom-nav">
+              <button class="nav-item active" onclick="setStaffTab('agenda', this)">
+                <span style="font-size: 18px;">📅</span>
+                <span>Ajandam</span>
+              </button>
+              <button class="nav-item" onclick="setStaffTab('chat', this)">
+                <span style="font-size: 18px;">💬</span>
+                <span>Mesajlar</span>
+              </button>
+              <button class="nav-item" onclick="setStaffTab('permissions', this)">
+                <span style="font-size: 18px;">🛡️</span>
+                <span>Yetkilerim</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- ========================================== -->
+    <!-- GÖRÜNÜM 2: MERKEZİ SALON YÖNETİCİ PANELİ     -->
+    <!-- ========================================== -->
+    <section id="view-admin" class="view-section">
+      <div class="admin-dashboard">
+        <div class="admin-header">
+          <div>
+            <h2 style="font-size: 18px; font-weight: 800; color: #0f172a;">👑 Salon & Şirket Yönetim Paneli</h2>
+            <p style="font-size: 12px; color: #64748b;">Kuaför salonu bilgileri, logo, çalışma saatleri, hizmetler ve çalışan yetkilendirmesi.</p>
+          </div>
+          <span class="badge badge-success" style="font-size: 12px; padding: 6px 12px;">Sistem Aktif & Çalışıyor</span>
+        </div>
+
+        <div class="admin-grid">
+          <!-- Sol Kolon: Salon Bilgileri & Hizmetler -->
+          <div>
+            <!-- Salon Bilgileri Formu -->
+            <div class="card">
+              <div class="card-title">🏢 Kuaför Salonu Bilgileri & Logo</div>
+              <form id="admin-salon-form">
+                <div class="form-group">
+                  <label>Salon / Şirket Adı</label>
+                  <input type="text" id="adm-salon-name" required>
+                </div>
+                <div class="form-group">
+                  <label>İletişim Telefonu</label>
+                  <input type="text" id="adm-salon-phone" required>
+                </div>
+                <div class="form-group">
+                  <label>Adres</label>
+                  <input type="text" id="adm-salon-address" required>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                  <div class="form-group">
+                    <label>Açılış Saati</label>
+                    <input type="time" id="adm-open-time" required>
+                  </div>
+                  <div class="form-group">
+                    <label>Kapanış Saati</label>
+                    <input type="time" id="adm-close-time" required>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Logo Görsel Linki (URL)</label>
+                  <input type="text" id="adm-logo-url" placeholder="https://... veya boş bırakın">
+                </div>
+                <button type="submit" class="btn-primary" style="padding: 8px;">Kaydet ve Güncelle</button>
+              </form>
+            </div>
+
+            <!-- Hizmet Tanımlama -->
+            <div class="card">
+              <div class="card-title">✂️ Hizmet Kataloğu & Süreler</div>
+              <form id="admin-service-form" style="margin-bottom: 14px; background: #f8fafc; padding: 10px; border-radius: 8px;">
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px; margin-bottom: 8px;">
+                  <div>
+                    <label style="font-size: 10px; font-weight: 700; color: #64748b;">Hizmet Adı</label>
+                    <input type="text" id="srv-name" placeholder="Örn: Cilt Bakımı" required style="padding: 6px; font-size: 12px; width: 100%;">
+                  </div>
+                  <div>
+                    <label style="font-size: 10px; font-weight: 700; color: #64748b;">Süre (Dakika)</label>
+                    <input type="number" id="srv-duration" placeholder="30" min="10" max="240" step="5" required style="padding: 6px; font-size: 12px; width: 100%;">
+                  </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                  <div>
+                    <label style="font-size: 10px; font-weight: 700; color: #64748b;">Fiyat (₺)</label>
+                    <input type="number" id="srv-price" placeholder="350" required style="padding: 6px; font-size: 12px; width: 100%;">
+                  </div>
+                  <div>
+                    <label style="font-size: 10px; font-weight: 700; color: #64748b;">Kategori</label>
+                    <select id="srv-category" style="padding: 6px; font-size: 12px; width: 100%;">
+                      <option value="Saç">Saç</option>
+                      <option value="Sakal">Sakal</option>
+                      <option value="Boya">Boya</option>
+                      <option value="Bakım">Bakım</option>
+                      <option value="Paket">Paket</option>
+                    </select>
+                  </div>
+                </div>
+                <button type="submit" class="btn-primary" style="padding: 6px; font-size: 11px;">+ Yeni Hizmet Ekle</button>
+              </form>
+
+              <div id="admin-services-list"></div>
+            </div>
+          </div>
+
+          <!-- Sağ Kolon: Çalışanlar ve Yetkilendirme Matrisi -->
+          <div>
+            <!-- Yeni Çalışan Ekleme Formu -->
+            <div class="card">
+              <div class="card-title">👥 Yeni Kuaför / Personel Ekle</div>
+              <form id="admin-staff-form" style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; align-items: flex-end;">
+                <div>
+                  <label style="font-size: 10px; font-weight: 700; color: #64748b;">Adı Soyadı</label>
+                  <input type="text" id="stf-name" placeholder="Murat Usta" required style="padding: 6px; font-size: 12px; width: 100%;">
+                </div>
+                <div>
+                  <label style="font-size: 10px; font-weight: 700; color: #64748b;">Ünvanı</label>
+                  <input type="text" id="stf-title" placeholder="Kalıcı Fön Uzmanı" required style="padding: 6px; font-size: 12px; width: 100%;">
+                </div>
+                <div>
+                  <input type="hidden" id="stf-phone" value="0530 000 00 00">
+                  <button type="submit" class="btn-primary" style="padding: 6px 12px; font-size: 11px; white-space: nowrap;">+ Ekle</button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Çalışan Yetkilendirme Tablosu -->
+            <div class="card">
+              <div class="card-title">
+                <span>🛡️ Çalışan Yetki Matrisi & İşlem İzinleri</span>
+              </div>
+              <p style="font-size: 11px; color: #64748b; margin-bottom: 8px;">
+                Her çalışanın yapabileceği işlemleri ve müşteri bilgilerine erişim yetkilerini buradan açıp kapatabilirsiniz:
+              </p>
+
+              <div style="overflow-x: auto;">
+                <table class="perm-table">
+                  <thead>
+                    <tr>
+                      <th>Personel</th>
+                      <th>Yetkili Hizmetler</th>
+                      <th title="Müşteri telefon numarasını görebilsin mi?">Tel No</th>
+                      <th title="Randevuyu iptal edebilsin mi?">İptal</th>
+                      <th title="Takvimine mola koyabilsin mi?">Mola</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody id="admin-permissions-body"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- GÖRÜNÜM 3: SADECE PERSONEL GÖRÜNÜMÜ        -->
+    <!-- ========================================== -->
+    <section id="view-staff" class="view-section">
+      <div style="display: flex; justify-content: center; width: 100%;">
+        <div id="single-staff-phone-placeholder"></div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- GÖRÜNÜM 4: SADECE MÜŞTERİ GÖRÜNÜMÜ         -->
+    <!-- ========================================== -->
+    <section id="view-customer" class="view-section">
+      <div style="display: flex; justify-content: center; width: 100%;">
+        <div id="single-cust-phone-placeholder"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Bildirim Toast Alanı -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- JS Motoru -->
+  <script src="app.js"></script>
+  <script>
+    // Sekme Kontrol Yardımcıları
+    function setCustomerTab(tabName, btn) {
+      activeCustomerTab = tabName;
+      btn.parentElement.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      btn.classList.add('active');
+      renderCustomerView();
+    }
+
+    function setStaffTab(tabName, btn) {
+      activeStaffTab = tabName;
+      btn.parentElement.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      btn.classList.add('active');
+      renderStaffView();
+    }
+
+    function onStaffSelectChange(val) {
+      selectedStaffId = parseInt(val);
+      renderStaffView();
+      renderCustomerView();
+    }
+
+    // Service Worker Kaydı (PWA Kurulumu için)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(err => console.log('SW hatası:', err));
+      });
+    }
+  </script>
+</body>
+</html>
