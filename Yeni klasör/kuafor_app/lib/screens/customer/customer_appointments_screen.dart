@@ -27,8 +27,10 @@ class _CustomerAppointmentsScreenState extends State<CustomerAppointmentsScreen>
       ),
       body: appointments.isEmpty
           ? const Center(
-              child: Text("Henüz aktif bir randevunuz bulunmamaktadır.",
-                  style: TextStyle(color: Color(0xFF5C4033), fontSize: 14)),
+              child: Text(
+                "Henüz aktif bir randevunuz bulunmamaktadır.",
+                style: TextStyle(color: Color(0xFF5C4033), fontSize: 14),
+              ),
             )
           : ListView.builder(
               padding: const EdgeInsets.all(12),
@@ -38,97 +40,95 @@ class _CustomerAppointmentsScreenState extends State<CustomerAppointmentsScreen>
                 final canCancel = appt.canCustomerCancel(cancellationWindowHours: 3);
                 final isCancelled = appt.status == 'IPTAL';
 
-              return Card(
-                elevation: 2,
-                margin: const EdgeInsets.only(bottom: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                child: Padding(
-                  padding: const EdgeInsets.all(14.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "⏰ ${appt.startDateTime.hour.toString().padLeft(2, '0')}:${appt.startDateTime.minute.toString().padLeft(2, '0')}",
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
-                          Chip(
-                            label: Text(
-                              appt.status,
-                              style: TextStyle(
-                                color: isCancelled ? Colors.red : Colors.green[800],
-                                fontWeight: FontWeight.bold,
-                                fontSize: 11,
-                              ),
+                return Card(
+                  elevation: 2,
+                  margin: const EdgeInsets.only(bottom: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(14.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "⏰ ${appt.startDateTime.hour.toString().padLeft(2, '0')}:${appt.startDateTime.minute.toString().padLeft(2, '0')}",
+                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                             ),
-                            backgroundColor: isCancelled ? Colors.red[50] : Colors.green[50],
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      Text("Hizmetler: ${appt.services.map((s) => s.name).join(' + ')}"),
-                      Text("Tutar: ${appt.totalPrice.toStringAsFixed(0)} ₺  •  Süre: ${appt.totalDuration} dk"),
-                      const Divider(height: 20),
-
-                      // 3 Saat Kuralı Bilgilendirme Kutusu
-                      if (!canCancel && !isCancelled)
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.amber[50],
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.amber[300]!),
-                          ),
-                          child: const Text(
-                            "⚠️ 3 Saat İptal Kısıtlaması: Randevunuza 3 saatten az kaldığı için uygulama üzerinden iptal yapılamamaktadır. Lütfen salonu doğrudan arayınız.",
-                            style: TextStyle(fontSize: 11, color: Colors.brown),
-                          ),
-                        ),
-
-                      const SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          // Mesajlaşma Butonu
-                          OutlinedButton.icon(
-                            icon: const Icon(Icons.chat_bubble_outline, size: 16),
-                            label: const Text("Kuaförle Yazış"),
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => CustomerChatScreen(
-                                    appointment: appt,
-                                  ),
+                            Chip(
+                              label: Text(
+                                appt.status,
+                                style: TextStyle(
+                                  color: isCancelled ? Colors.red : Colors.green[800],
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 11,
                                 ),
-                              );
-                            },
+                              ),
+                              backgroundColor: isCancelled ? Colors.red[50] : Colors.green[50],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Text("Hizmetler: ${appt.services.map((s) => s.name).join(' + ')}"),
+                        Text("Tutar: ${appt.totalPrice.toStringAsFixed(0)} ₺  •  Süre: ${appt.totalDuration} dk"),
+                        const Divider(height: 20),
+
+                        // 3 Saat Kuralı Bilgilendirme Kutusu
+                        if (!canCancel && !isCancelled)
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.amber[50],
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.amber[300]!),
+                            ),
+                            child: const Text(
+                              "⚠️ 3 Saat İptal Kısıtlaması: Randevunuza 3 saatten az kaldığı için uygulama üzerinden iptal yapılamamaktadır. Lütfen salonu doğrudan arayınız.",
+                              style: TextStyle(fontSize: 11, color: Colors.brown),
+                            ),
                           ),
 
-                          // İptal Butonu
-                          if (!isCancelled)
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: canCancel ? Colors.red : Colors.grey[300],
-                                foregroundColor: canCancel ? Colors.white : Colors.grey[600],
-                              ),
-                              onPressed: canCancel
-                                  ? () => _confirmCancel(context, appt.id)
-                                  : null,
-                              child: const Text("İptal Et"),
+                        const SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // Mesajlaşma Butonu
+                            OutlinedButton.icon(
+                              icon: const Icon(Icons.chat_bubble_outline, size: 16),
+                              label: const Text("Kuaförle Yazış"),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => CustomerChatScreen(
+                                      appointment: appt,
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
-                        ],
-                      ),
-                    ],
+
+                            // İptal Butonu
+                            if (!isCancelled)
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: canCancel ? Colors.red : Colors.grey[300],
+                                  foregroundColor: canCancel ? Colors.white : Colors.grey[600],
+                                ),
+                                onPressed: canCancel
+                                    ? () => _confirmCancel(context, appt.id)
+                                    : null,
+                                child: const Text("İptal Et"),
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              );
-            },
-          );
-        },
-      ),
+                );
+              },
+            ),
     );
   }
 
