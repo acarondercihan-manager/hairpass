@@ -26,9 +26,12 @@ jobs:
 
       - name: Projeyi Bul ve APK Derle
         run: |
-          APP_DIR=$(dirname $(find . -name "pubspec.yaml" | head -n 1))
-          echo "Proje dizini bulundu: $APP_DIR"
+          TARGET=$(find . -name "pubspec.yaml" | head -n 1)
+          APP_DIR="${TARGET%/pubspec.yaml}"
+          echo "Proje dizini: $APP_DIR"
           cd "$APP_DIR"
+          mkdir -p assets/images
+          flutter create . --org com.hairpass.app --platforms=android
           flutter pub get
           flutter build apk --release
 
@@ -36,4 +39,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: HairPass-Android-APK
-          path: "**/build/app/outputs/flutter-apk/app-release.apk"
+          path: "**/*.apk"
