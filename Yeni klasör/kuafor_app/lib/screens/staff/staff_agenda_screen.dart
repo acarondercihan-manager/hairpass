@@ -43,7 +43,8 @@ class _StaffAgendaScreenState extends State<StaffAgendaScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text("Günlük Randevu Ajandası", style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF5C4033))),
+                const Text("Günlük Randevu Ajandası",
+                    style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF5C4033))),
                 TextButton.icon(
                   icon: const Icon(Icons.calendar_today, size: 16, color: Color(0xFF8B5A2B)),
                   label: Text("${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}",
@@ -75,87 +76,85 @@ class _StaffAgendaScreenState extends State<StaffAgendaScreen> {
                     itemBuilder: (context, index) {
                       final appt = appointments[index];
 
-                    return Card(
-                      elevation: 2,
-                      margin: const EdgeInsets.only(bottom: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      child: Padding(
-                        padding: const EdgeInsets.all(14.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  "⏰ ${appt.startDateTime.hour.toString().padLeft(2, '0')}:${appt.startDateTime.minute.toString().padLeft(2, '0')} - ${appt.endDateTime.hour.toString().padLeft(2, '0')}:${appt.endDateTime.minute.toString().padLeft(2, '0')}",
-                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                                ),
-                                Chip(
-                                  label: Text(
-                                    appt.status,
-                                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+                      return Card(
+                        elevation: 2,
+                        margin: const EdgeInsets.only(bottom: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        child: Padding(
+                          padding: const EdgeInsets.all(14.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "⏰ ${appt.startDateTime.hour.toString().padLeft(2, '0')}:${appt.startDateTime.minute.toString().padLeft(2, '0')} - ${appt.endDateTime.hour.toString().padLeft(2, '0')}:${appt.endDateTime.minute.toString().padLeft(2, '0')}",
+                                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                                   ),
-                                  backgroundColor: appt.status == 'ONAYLANDI'
-                                      ? Colors.green[100]
-                                      : Colors.red[100],
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-
-                            // Müşteri Bilgisi (Yetki kontrolü ile telefon gizleme)
-                            Text("👤 Müşteri: ${appt.customerName}",
-                                style: const TextStyle(fontWeight: FontWeight.bold)),
-
-                            if (permissions.canViewCustomerPhone)
-                              Text("📞 Telefon: ${appt.customerPhone}",
-                                  style: const TextStyle(color: Colors.blueGrey))
-                            else
-                              const Text("🔒 Telefon: Yönetici Tarafından Gizlendi",
-                                  style: TextStyle(color: Colors.grey, fontSize: 11)),
-
-                            const SizedBox(height: 4),
-                            Text("✂️ Hizmetler: ${appt.services.map((s) => s.name).join(' + ')}"),
-                            const Divider(height: 16),
-
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                ElevatedButton.icon(
-                                  icon: const Icon(Icons.chat, size: 14),
-                                  label: const Text("Müşteriye Mesaj"),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.amber[800],
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  Chip(
+                                    label: Text(
+                                      appt.status,
+                                      style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+                                    ),
+                                    backgroundColor: appt.status == 'ONAYLANDI'
+                                        ? Colors.green[100]
+                                        : Colors.red[100],
                                   ),
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => CustomerChatScreen(appointment: appt),
-                                      ),
-                                    );
-                                  },
-                                ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
 
-                                if (permissions.canCancelAppointments && appt.status == 'ONAYLANDI')
-                                  TextButton(
-                                    style: TextButton.styleFrom(foregroundColor: Colors.red),
-                                    onPressed: () => _cancelByStaff(appt.id),
-                                    child: const Text("İptal Et"),
+                              // Müşteri Bilgisi (Yetki kontrolü ile telefon gizleme)
+                              Text("👤 Müşteri: ${appt.customerName}",
+                                  style: const TextStyle(fontWeight: FontWeight.bold)),
+
+                              if (permissions.canViewCustomerPhone)
+                                Text("📞 Telefon: ${appt.customerPhone}",
+                                    style: const TextStyle(color: Colors.blueGrey))
+                              else
+                                const Text("🔒 Telefon: Yönetici Tarafından Gizlendi",
+                                    style: TextStyle(color: Colors.grey, fontSize: 11)),
+
+                              const SizedBox(height: 4),
+                              Text("✂️ Hizmetler: ${appt.services.map((s) => s.name).join(' + ')}"),
+                              const Divider(height: 16),
+
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  ElevatedButton.icon(
+                                    icon: const Icon(Icons.chat, size: 14),
+                                    label: const Text("Müşteriye Mesaj"),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF8B5A2B),
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                    ),
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => CustomerChatScreen(appointment: appt),
+                                        ),
+                                      );
+                                    },
                                   ),
-                              ],
-                            ),
-                          ],
+
+                                  if (permissions.canCancelAppointments && appt.status == 'ONAYLANDI')
+                                    TextButton(
+                                      style: TextButton.styleFrom(foregroundColor: Colors.red),
+                                      onPressed: () => _cancelByStaff(appt.id),
+                                      child: const Text("İptal Et"),
+                                    ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
+                      );
+                    },
+                  ),
           ),
         ],
       ),
