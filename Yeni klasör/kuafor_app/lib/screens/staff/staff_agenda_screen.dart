@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/staff_model.dart';
 import '../../models/appointment_model.dart';
-import '../../services/appointment_service.dart';
+import '../../services/appointment_repository.dart';
 import '../customer/customer_chat_screen.dart';
 
 class StaffAgendaScreen extends StatefulWidget {
@@ -15,11 +15,12 @@ class StaffAgendaScreen extends StatefulWidget {
 
 class _StaffAgendaScreenState extends State<StaffAgendaScreen> {
   DateTime _selectedDate = DateTime.now();
-  final AppointmentService _service = AppointmentService();
+  final AppointmentRepository _repo = AppointmentRepository.instance;
 
   @override
   Widget build(BuildContext context) {
     final permissions = widget.staff.permissions;
+    final appointments = _repo.getStaffAppointments(widget.staff.id, _selectedDate);
 
     return Scaffold(
       appBar: AppBar(
@@ -30,22 +31,23 @@ class _StaffAgendaScreenState extends State<StaffAgendaScreen> {
             Text(widget.staff.title, style: const TextStyle(fontSize: 12, color: Colors.white70)),
           ],
         ),
-        backgroundColor: Colors.blueGrey[900],
-        foregroundColor: Colors.white,
+        backgroundColor: const Color(0xFF5C4033),
+        foregroundColor: const Color(0xFFFFF8F0),
       ),
       body: Column(
         children: [
           // Tarih Başlığı
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            color: Colors.blueGrey[50],
+            color: const Color(0xFFF7F3EE),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text("Günlük Randevu Ajandası", style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text("Günlük Randevu Ajandası", style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF5C4033))),
                 TextButton.icon(
-                  icon: const Icon(Icons.calendar_today, size: 16),
-                  label: Text("${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}"),
+                  icon: const Icon(Icons.calendar_today, size: 16, color: Color(0xFF8B5A2B)),
+                  label: Text("${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}",
+                      style: const TextStyle(color: Color(0xFF8B5A2B))),
                   onPressed: () async {
                     final picked = await showDatePicker(
                       context: context,
@@ -62,25 +64,16 @@ class _StaffAgendaScreenState extends State<StaffAgendaScreen> {
 
           // Randevu Listesi
           Expanded(
-            child: StreamBuilder<List<AppointmentModel>>(
-              stream: _service.streamStaffAppointments(widget.staff.id, _selectedDate),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                final appointments = snapshot.data ?? [];
-                if (appointments.isEmpty) {
-                  return const Center(
-                    child: Text("Bugün için onaylanmış randevunuz bulunmamaktadır."),
-                  );
-                }
-
-                return ListView.builder(
-                  padding: const EdgeInsets.all(12),
-                  itemCount: appointments.length,
-                  itemBuilder: (context, index) {
-                    final appt = appointments[index];
+            child: appointments.isEmpty
+                ? const Center(
+                    child: Text("Bugün için onaylanmış randevunuz bulunmamaktadır.",
+                        style: TextStyle(color: Color(0xFF5C4033))),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.all(12),
+                    itemCount: appointments.length,
+                    itemBuilder: (context, index) {
+                      final appt = appointments[index];
 
                     return Card(
                       elevation: 2,
@@ -183,7 +176,8 @@ class _StaffAgendaScreenState extends State<StaffAgendaScreen> {
     );
 
     if (confirm == true) {
-      await _service.cancelAppointmentByStaff(apptId);
+      await _repo.cancelAppointment(apptId, isCustomer: false);
+      setState(() {});
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Randevu iptal edildi.")),

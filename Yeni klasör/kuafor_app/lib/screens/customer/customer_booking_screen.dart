@@ -4,7 +4,7 @@ import '../../models/staff_model.dart';
 import '../../models/service_model.dart';
 import '../../models/appointment_model.dart';
 import '../../services/slot_calculator_service.dart';
-import '../../services/appointment_service.dart';
+import '../../services/appointment_repository.dart';
 
 class CustomerBookingScreen extends StatefulWidget {
   final SalonModel salon;
@@ -31,7 +31,7 @@ class _CustomerBookingScreenState extends State<CustomerBookingScreen> {
 
   final TextEditingController _nameController = TextEditingController(text: "Caner Yılmaz");
   final TextEditingController _phoneController = TextEditingController(text: "0542 987 65 43");
-  final AppointmentService _appointmentService = AppointmentService();
+  final AppointmentRepository _repo = AppointmentRepository.instance;
 
   @override
   void initState() {
@@ -282,13 +282,13 @@ class _CustomerBookingScreenState extends State<CustomerBookingScreen> {
         createdAt: DateTime.now(),
       );
 
-      await _appointmentService.createAppointment(newAppt);
+      await _repo.addAppointment(newAppt);
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("🎉 Randevunuz oluşturuldu: ${_selectedStaff.name} ($_selectedSlot)"),
-          backgroundColor: Colors.green,
+          backgroundColor: const Color(0xFF8B5A2B),
         ),
       );
     } catch (e) {

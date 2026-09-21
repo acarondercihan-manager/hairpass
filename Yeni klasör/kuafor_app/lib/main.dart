@@ -106,85 +106,122 @@ class _RoleNavigationRootState extends State<RoleNavigationRoot> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFF1E293B), Color(0xFF0F172A)],
+            colors: [Color(0xFF2C1810), Color(0xFF150C07)],
           ),
         ),
         padding: const EdgeInsets.all(24.0),
         child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.content_cut, size: 64, color: Colors.amber),
-              const SizedBox(height: 16),
-              Text(
-                _salon.name,
-                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
-                textAlign: TextAlign.center,
-              ),
-              const Text(
-                "Lütfen Giriş Rolünüzü Seçiniz",
-                style: TextStyle(color: Colors.white70, fontSize: 14),
-              ),
-              const SizedBox(height: 36),
-
-              // 1. Müşteri Girişi
-              _buildRoleButton(
-                icon: Icons.person,
-                title: "👤 Müşteri Olarak Giriş Yap",
-                subtitle: "Kuaför & Hizmet Seçimi, Randevu Alma & İptal",
-                color: Colors.amber[800]!,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => CustomerMainWrapper(
-                        salon: _salon,
-                        staffList: _staffList,
-                        services: _services,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // HairPass Ahşap Rozet Logosu
+                Container(
+                  width: 110,
+                  height: 110,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFC89D7C).withOpacity(0.35),
+                        blurRadius: 25,
+                        spreadRadius: 2,
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(24),
+                    child: Image.asset(
+                      'assets/images/logo.png',
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        color: const Color(0xFF8B5A2B),
+                        child: const Icon(Icons.content_cut, size: 50, color: Color(0xFFFFF8F0)),
                       ),
                     ),
-                  );
-                },
-              ),
-              const SizedBox(height: 14),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  "HAIRPASS",
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 2,
+                    color: Color(0xFFF3E5D8),
+                  ),
+                ),
+                Text(
+                  _salon.name,
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFFD4AF37)),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 6),
+                const Text(
+                  "Dijital Kimlik & Randevu Sistemi",
+                  style: TextStyle(color: Colors.white60, fontSize: 12),
+                ),
+                const SizedBox(height: 32),
 
-              // 2. Kuaför Çalışanı Girişi
-              _buildRoleButton(
-                icon: Icons.cut,
-                title: "✂️ Kuaför Çalışanı Girişi",
-                subtitle: "Kişisel Randevu Ajandası & Müşteriyle Chat",
-                color: Colors.teal[700]!,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => StaffAgendaScreen(staff: _staffList.first),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 14),
-
-              // 3. Salon Yöneticisi Girişi
-              _buildRoleButton(
-                icon: Icons.admin_panel_settings,
-                title: "👑 Salon Yöneticisi (Admin)",
-                subtitle: "Salon Ayarları, Hizmet Süreleri & Yetkilendirme",
-                color: Colors.indigo[700]!,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AdminDashboardScreen(
-                        initialSalon: _salon,
-                        initialStaff: _staffList,
-                        initialServices: _services,
+                // 1. Müşteri Girişi
+                _buildRoleButton(
+                  icon: Icons.person,
+                  title: "👤 Müşteri Girişi",
+                  subtitle: "Randevu Al, İptal Et & Kuaförle Yazış",
+                  color: const Color(0xFF8B5A2B),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CustomerMainWrapper(
+                          salon: _salon,
+                          staffList: _staffList,
+                          services: _services,
+                        ),
                       ),
-                    ),
-                  );
-                },
-              ),
-            ],
+                    );
+                  },
+                ),
+                const SizedBox(height: 14),
+
+                // 2. Kuaför Çalışanı Girişi
+                _buildRoleButton(
+                  icon: Icons.cut,
+                  title: "✂️ Kuaför Çalışanı Girişi",
+                  subtitle: "Kişisel Randevu Ajandası & Müşteriyle Chat",
+                  color: const Color(0xFF5C4033),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => StaffAgendaScreen(staff: _staffList.first),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 14),
+
+                // 3. Salon Yöneticisi Girişi
+                _buildRoleButton(
+                  icon: Icons.admin_panel_settings,
+                  title: "👑 Salon Yöneticisi (Admin)",
+                  subtitle: "Salon Ayarları, Hizmet Süreleri & Yetkilendirme",
+                  color: const Color(0xFF3E2723),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AdminDashboardScreen(
+                          initialSalon: _salon,
+                          initialStaff: _staffList,
+                          initialServices: _services,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),

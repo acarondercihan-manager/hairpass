@@ -1,43 +1,42 @@
 import 'package:flutter/material.dart';
 import '../../models/appointment_model.dart';
-import '../../services/appointment_service.dart';
+import '../../services/appointment_repository.dart';
 import 'customer_chat_screen.dart';
 
-class CustomerAppointmentsScreen extends StatelessWidget {
+class CustomerAppointmentsScreen extends StatefulWidget {
   final String customerId;
-  final AppointmentService _service = AppointmentService();
 
-  CustomerAppointmentsScreen({super.key, required this.customerId});
+  const CustomerAppointmentsScreen({super.key, required this.customerId});
+
+  @override
+  State<CustomerAppointmentsScreen> createState() => _CustomerAppointmentsScreenState();
+}
+
+class _CustomerAppointmentsScreenState extends State<CustomerAppointmentsScreen> {
+  final AppointmentRepository _repo = AppointmentRepository.instance;
 
   @override
   Widget build(BuildContext context) {
+    final appointments = _repo.getCustomerAppointments(widget.customerId);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Randevularım"),
-        backgroundColor: Colors.amber[800],
-        foregroundColor: Colors.white,
+        backgroundColor: const Color(0xFF8B5A2B),
+        foregroundColor: const Color(0xFFFFF8F0),
       ),
-      body: StreamBuilder<List<AppointmentModel>>(
-        stream: _service.streamCustomerAppointments(customerId),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          final appointments = snapshot.data ?? [];
-          if (appointments.isEmpty) {
-            return const Center(
-              child: Text("Henüz aktif bir randevunuz bulunmamaktadır."),
-            );
-          }
-
-          return ListView.builder(
-            padding: const EdgeInsets.all(12),
-            itemCount: appointments.length,
-            itemBuilder: (context, index) {
-              final appt = appointments[index];
-              final canCancel = appt.canCustomerCancel(cancellationWindowHours: 3);
-              final isCancelled = appt.status == 'IPTAL';
+      body: appointments.isEmpty
+          ? const Center(
+              child: Text("Henüz aktif bir randevunuz bulunmamaktadır.",
+                  style: TextStyle(color: Color(0xFF5C4033), fontSize: 14)),
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.all(12),
+              itemCount: appointments.length,
+              itemBuilder: (context, index) {
+                final appt = appointments[index];
+                final canCancel = appt.canCustomerCancel(cancellationWindowHours: 3);
+                final isCancelled = appt.status == 'IPTAL';
 
               return Card(
                 elevation: 2,
@@ -145,7 +144,8 @@ class CustomerAppointmentsScreen extends StatelessWidget {
             onPressed: () async {
               Navigator.pop(ctx);
               try {
-                await _service.cancelAppointmentByCustomer(appointmentId: appointmentId);
+                await _repo.cancelAppointment(appointmentId, isCustomer: true);
+                setState(() {});
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text("Randevunuz iptal edildi.")),
